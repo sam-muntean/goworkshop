@@ -45,6 +45,4 @@ func main() {
 	//
 	//fmt.Println("ser books are:")
 	//fmt.Println(string(serializedData))
-
-
 }
