@@ -2,15 +2,26 @@ package main
 
 import (
 	"fmt"
-	"goworkshop/test"
+	"io/ioutil"
+	"goworkshop/domain"
+	"encoding/json"
 )
 
 func main() {
-	var s = test.Square{
-		Rectangle: test.Rectangle{
-			Width:  10,
-			Length: 10,
-		},
+	fileC, err := ioutil.ReadFile("main/books.json")
+
+	if err != nil {
+		panic(err)
 	}
-	fmt.Println(s.Test.Area())
+
+	fmt.Println(string(fileC))
+	var books []domain.BookDto
+
+	if err = json.Unmarshal(fileC, &books); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("the books are: ")
+	fmt.Println(books)
+
 }
