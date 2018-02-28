@@ -25,27 +25,27 @@ var routes = []Route{
 		handler:    booksHandler,
 		httpMethod: "GET",
 	},
-	Route{
+	{
 		httpMethod:       "GET",
 		route:      "/authors",
 		handler:  authorsHandler,
 	},
-	Route{
+	{
 		httpMethod:       "GET",
 		route:      "/authors/{uuid}",
 		handler:  getAuthorByUuid,
 	},
-	Route{
+	{
 		httpMethod:       "DELETE",
 		route:      "/authors/{uuid}",
 		handler:  deleteAuthor,
 	},
-	Route{
+	{
 		httpMethod:       "POST",
 		route:      "/authors",
 		handler:  createAuthor,
 	},
-	Route{
+	{
 		httpMethod:       "PUT",
 		route:      "/authors/{uuid}",
 		handler:  updateAuthor,
