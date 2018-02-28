@@ -2,12 +2,12 @@ package web
 
 import (
 	"net/http"
-	"os"
 	"fmt"
 	"encoding/json"
 	"goworkshop/model"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"os"
 )
 
 const API_PORT_NAME = "API_PORT"
@@ -22,15 +22,34 @@ type Route struct {
 var routes = []Route{
 	{
 		route:      "/books",
-		handler:    getAllBooks,
+		handler:    booksHandler,
 		httpMethod: "GET",
 	},
-	{
-		route:      "/books/{uuid}",
-		handler:    getBookByUuid,
-	route string
-	handler func(http.ResponseWriter, *http.Request)
-	httpMethod string
+	Route{
+		httpMethod:       "GET",
+		route:      "/authors",
+		handler:  authorsHandler,
+	},
+	Route{
+		httpMethod:       "GET",
+		route:      "/authors/{uuid}",
+		handler:  getAuthorByUuid,
+	},
+	Route{
+		httpMethod:       "DELETE",
+		route:      "/authors/{uuid}",
+		handler:  deleteAuthor,
+	},
+	Route{
+		httpMethod:       "POST",
+		route:      "/authors",
+		handler:  createAuthor,
+	},
+	Route{
+		httpMethod:       "PUT",
+		route:      "/authors/{uuid}",
+		handler:  updateAuthor,
+	},
 }
 
 
@@ -39,14 +58,6 @@ func StartServer() {
 	for _, route := range routes {
 		mux.HandleFunc(route.route, route.handler).Methods(route.httpMethod)
 	}
-
-	for _, route := range routes{
-		mux.HandleFunc(route.route, route.handler).Methods(route.httpMethod)
-	}
-	mux.HandleFunc("/books", booksHandler).Methods("GET")
-	mux.HandleFunc("/books/{uuid}", getBookByUuid).Methods("GET")
-	mux.HandleFunc("/authors", createAuthor).Methods("POST")
-	mux.HandleFunc("/authors", authorsHandler).Methods("GET")
 
 	var port = getPort()
 	fmt.Println("+-------------------------------+")
@@ -68,14 +79,8 @@ func serializeData(data interface{}, w http.ResponseWriter) error {
 	}
 }
 
-func getAllAuthors(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Request method:", r.Method)
-	if err := serializeData(model.Authors, w); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-}
-
 func createAuthor(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Request method:", r.Method)
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintln(w, "{\"message\":\"Error reading body!\"}")
@@ -89,28 +94,53 @@ func createAuthor(w http.ResponseWriter, r *http.Request) {
 	model.Authors = append(model.Authors, author)
 }
 
-func getBookAuthor(w http.ResponseWriter, r *http.Request) {
+func deleteAuthor(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Request method:", r.Method)
 	uuid := mux.Vars(r)["uuid"]
-	for _, book := range model.Books {
-		if book.UUID == uuid {
-			if err := serializeData(book.Author, w); err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-			}
+	w.Header().Set("Content-Type", "application/json")
+
+	var updatedSlice []model.AuthorDto
+	for _, author := range model.Authors {
+		if author.UUID != uuid {
+			updatedSlice = append(updatedSlice, author)
 		}
 	}
+	model.Authors = updatedSlice
+}
 
-	fmt.Fprintln(w, "{\"message\":\"The book does not exist!\"}")
+func updateAuthor(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Request method:", r.Method)
+	uuid := mux.Vars(r)["uuid"]
+	w.Header().Set("Content-Type", "application/json")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "{\"message\":\"Error reading body!\"}")
+		return
+	}
+	var newAuthor model.AuthorDto
+	if err := json.Unmarshal(body, &newAuthor); err != nil {
+		fmt.Fprintln(w, "{\"message\":\"Error unmarshling the body!\"}")
+		return
+	}
+
+	for idx, author := range model.Authors {
+		if author.UUID == uuid {
+			model.Authors[idx] = newAuthor
+			return
+		}
+	}
+	fmt.Fprintln(w, "{\"message\":\"The author does not exist!\"}")
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func getBookByUuid(w http.ResponseWriter, r *http.Request) {
+func getAuthorByUuid(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Request method:", r.Method)
 	uuid := mux.Vars(r)["uuid"]
-
 	w.Header().Set("Content-Type", "application/json")
-
-	for _, book := range model.Books {
-		if book.UUID == uuid {
-			if data, err := json.Marshal(book); err != nil {
+	for _, author := range model.Authors {
+		if author.UUID == uuid {
+			if data, err := json.Marshal(author); err != nil {
 				fmt.Fprintln(w, "{\"message\":\"Error reading!\"}")
 				return
 			} else {
@@ -121,45 +151,6 @@ func getBookByUuid(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "{\"message\":\"The book does not exist!\"}")
-	w.WriteHeader(http.StatusNotFound)
-}
-
-func getAllBooks(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Request method:", r.Method)
-	w.Header().Set("Content-Type", "application/json")
-
-	if data, err := json.Marshal(model.Books); err != nil {
-		fmt.Fprintln(w, "{\"message\":\"Error reading!\"}")
-	} else {
-		fmt.Fprintln(w, string(data))
-	}
-
-func createAuthor(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Fprintln(w, "{\"message\":\"Error unmar the body!\"}")
-		return
-	}
-	var author model.AuthorDto
-	if err := json.Unmarshal(&body); err != nil{
-
-	}
-}
-
-func getBookByUuid(w http.ResponseWriter, r *http.Request)  {
-	w.Header().Set("Content-Type", "application/json")
-	uuid := mux.Vars(r)["uuid"]
-	for _, book := range model.Books {
-		if book.UUID == uuid {
-			add, err := json.Marshal(book)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintln(w, string(add))
-			return
-		}
-	}
-	fmt.Fprintln(w, "no book added")
 	w.WriteHeader(http.StatusNotFound)
 }
 
