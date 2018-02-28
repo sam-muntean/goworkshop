@@ -28,15 +28,25 @@ var routes = []Route{
 	{
 		route:      "/books/{uuid}",
 		handler:    getBookByUuid,
-		httpMethod: "GET",
-	},
+	route string
+	handler func(http.ResponseWriter, *http.Request)
+	httpMethod string
 }
+
 
 func StartServer() {
 	mux := mux.NewRouter()
 	for _, route := range routes {
 		mux.HandleFunc(route.route, route.handler).Methods(route.httpMethod)
 	}
+
+	for _, route := range routes{
+		mux.HandleFunc(route.route, route.handler).Methods(route.httpMethod)
+	}
+	mux.HandleFunc("/books", booksHandler).Methods("GET")
+	mux.HandleFunc("/books/{uuid}", getBookByUuid).Methods("GET")
+	mux.HandleFunc("/authors", createAuthor).Methods("POST")
+	mux.HandleFunc("/authors", authorsHandler).Methods("GET")
 
 	var port = getPort()
 	fmt.Println("+-------------------------------+")
@@ -124,6 +134,51 @@ func getAllBooks(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, string(data))
 	}
 
+func createAuthor(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "{\"message\":\"Error unmar the body!\"}")
+		return
+	}
+	var author model.AuthorDto
+	if err := json.Unmarshal(&body); err != nil{
+
+	}
+}
+
+func getBookByUuid(w http.ResponseWriter, r *http.Request)  {
+	w.Header().Set("Content-Type", "application/json")
+	uuid := mux.Vars(r)["uuid"]
+	for _, book := range model.Books {
+		if book.UUID == uuid {
+			add, err := json.Marshal(book)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintln(w, string(add))
+			return
+		}
+	}
+	fmt.Fprintln(w, "no book added")
+	w.WriteHeader(http.StatusNotFound)
+}
+
+func booksHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	serializedContent, err := json.Marshal(model.Books)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintln(w, string(serializedContent))
+}
+
+func authorsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	serializedContent, err := json.Marshal(model.Authors)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintln(w, string(serializedContent))
 }
 
 func getPort() string {
