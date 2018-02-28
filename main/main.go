@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"projects/goworkshop/importer"
-	"projects/goworkshop/web"
-	"projects/goworkshop/model"
+	"goworkshop/importer"
+	"goworkshop/web"
+	"goworkshop/model"
 )
 
 func main() {
