@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"goworkshop/importer"
-	"goworkshop/web"
 	"goworkshop/model"
+	"goworkshop/web"
 )
 
 func main() {
