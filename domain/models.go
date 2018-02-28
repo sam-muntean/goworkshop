@@ -34,3 +34,5 @@ func (a AuthorDto) String() string {
 var Books []BookDto
 
 var Authors []AuthorDto
+
+type BookList []BookDto
