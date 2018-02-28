@@ -2,9 +2,9 @@ package web
 
 import (
 	"net/http"
-	"goworkshop/importer"
+	"projects/goworkshop/importer"
 	"github.com/gorilla/mux"
-	"goworkshop/model"
+	"projects/goworkshop/model"
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
