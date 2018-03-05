@@ -8,7 +8,7 @@ import (
 )
 
 const API_PORT_NAME = "API_PORT"
-const API_PORT_VALUE = "8000"
+const API_PORT_VALUE = "8080"
 
 func StartServer() {
 	router := mux.NewRouter()

@@ -11,7 +11,7 @@ import (
 )
 
 
-type Authors []model.AuthorDto
+type Authors []model.Author
 
 var authors Authors = importer.ImportAuthors()
 
@@ -40,7 +40,7 @@ func DeleteAuthorByUUID(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
-	var author model.AuthorDto
+	var author model.Author
 	bytes, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(bytes, &author)
 	if err != nil {
@@ -52,7 +52,7 @@ func AddAuthor(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
-	var author model.AuthorDto
+	var author model.Author
 	bytes, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(bytes, &author)
 	if err != nil {
@@ -67,14 +67,14 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	WriteJson(w, author)
 }
 
-func (a *Authors) get(authorUUID string) (model.AuthorDto, error) {
+func (a *Authors) get(authorUUID string) (model.Author, error) {
 	err := fmt.Errorf("could not find author by uuid %s", authorUUID)
 	for _, author := range *a {
 		if author.UUID == authorUUID {
 			return author, nil
 		}
 	}
-	var author model.AuthorDto
+	var author model.Author
 	return author, err
 }
 
@@ -94,7 +94,7 @@ func (a *Authors) delete(authorUUID string) error {
 	return err
 }
 
-func (a *Authors) update(updatedAuthor model.AuthorDto) (model.AuthorDto, error) {
+func (a *Authors) update(updatedAuthor model.Author) (model.Author, error) {
 	var err error = fmt.Errorf("could not find author by uuid %s", updatedAuthor.UUID)
 	var newAuthors Authors
 	for _, author := range *a {

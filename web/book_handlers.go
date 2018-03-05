@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 )
 
-type Books []model.BookDto
+type Books []model.Book
 
 var books Books = importer.ImportBooks()
 
@@ -53,7 +53,7 @@ func DeleteBookByUUID(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddBook(w http.ResponseWriter, r *http.Request) {
-	var book model.BookDto
+	var book model.Book
 	bytes, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(bytes, &book)
 	if err != nil {
@@ -65,7 +65,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	var book model.BookDto
+	var book model.Book
 	bytes, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(bytes, &book)
 	if err != nil {
@@ -80,14 +80,14 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	WriteJson(w, book)
 }
 
-func (b *Books) get(bookUUID string) (model.BookDto, error) {
+func (b *Books) get(bookUUID string) (model.Book, error) {
 	err := fmt.Errorf("could not find book by uuid %s", bookUUID)
 	for _, book := range *b {
 		if book.UUID == bookUUID {
 			return book, nil
 		}
 	}
-	var book model.BookDto
+	var book model.Book
 	return book, err
 }
 
@@ -107,7 +107,7 @@ func (b *Books) delete(bookUUID string) error {
 	return err
 }
 
-func (b *Books) update(updatedBook model.BookDto) (model.BookDto, error) {
+func (b *Books) update(updatedBook model.Book) (model.Book, error) {
 	var err error = fmt.Errorf("could not find book by uuid %s", updatedBook.UUID)
 	var newBooks Books
 	for _, book := range *b {
