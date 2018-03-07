@@ -23,7 +23,7 @@ func StartServer() {
 }
 
 func log(funcHandler http.HandlerFunc) http.HandlerFunc{
-	fmt.Println("Returning the function")
+	//fmt.Println("Returning the function")
 	return func (rw http.ResponseWriter, r *http.Request){
 		fmt.Println("New REST request to url: "+r.URL.Path)
 		funcHandler(rw, r)

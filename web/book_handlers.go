@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
+	"goworkshop/persistence"
 )
 
 type Books []model.Book
@@ -29,6 +30,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
+	books, err := persistence.Storage.GetBooks()
+	if err != nil {
+		panic(err)
+	}
 	WriteJson(w, books)
 }
 
@@ -54,12 +59,15 @@ func DeleteBookByUUID(w http.ResponseWriter, r *http.Request) {
 
 func AddBook(w http.ResponseWriter, r *http.Request) {
 	var book model.Book
-	bytes, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(bytes, &book)
+	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to create book: %s", err)
+		panic(err)
+	}
+	if err := json.Unmarshal(bytes, &book); err != nil {
+		panic(err)
+	} else if err := persistence.Storage.CreateBook(&book); err != nil {
+		panic(err)
 	} else {
-		books = append(books, book)
 		WriteJson(w, book)
 	}
 }

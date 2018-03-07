@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
+	"goworkshop/persistence"
 )
 
 
@@ -16,6 +17,10 @@ type Authors []model.Author
 var authors Authors = importer.ImportAuthors()
 
 func GetAllAuthors(w http.ResponseWriter, r *http.Request) {
+	authors, err := persistence.Storage.GetAuthors()
+	if err != nil {
+		panic(err)
+	}
 	WriteJson(w, authors)
 }
 
@@ -41,12 +46,15 @@ func DeleteAuthorByUUID(w http.ResponseWriter, r *http.Request) {
 
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
 	var author model.Author
-	bytes, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(bytes, &author)
+	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to create author: %s", err)
+		panic(err)
+	}
+	if err := json.Unmarshal(bytes, &author); err != nil {
+		panic(err)
+	} else if err := persistence.Storage.CreateAuthor(&author); err != nil {
+		panic(err)
 	} else {
-		authors = append(authors, author)
 		WriteJson(w, author)
 	}
 }
